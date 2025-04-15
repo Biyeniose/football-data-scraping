@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  scraper:
+    build: .
+    volumes:
+      - ./:/app                  # Mount current directory for live code updates
+      - ./logs:/app/logs         # Persistent logs
+    environment:
+      - PYTHONUNBUFFERED=1       # Real-time logging
+    env_file:
+      - .env
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
