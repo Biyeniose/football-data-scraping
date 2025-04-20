@@ -5,6 +5,7 @@ __pycache__/
 *.pyo
 *.py[cod]
 *$py.class
+.log
 
 # Package distribution - build artifacts
 dist/
