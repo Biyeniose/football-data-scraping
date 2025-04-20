@@ -1,4 +1,29 @@
 .env
+*.env
 __pycache__/
 *.pyc
 *.pyo
+*.py[cod]
+*$py.class
+
+# Package distribution - build artifacts
+dist/
+build/
+
+# Editor/IDE specific files (adjust based on your team's preferences)
+.idea/
+.vscode/
+*.swp
+*.swo
+*.viminfo
+*.bak
+*.tmp
+*.log # Generic log files (consider if you want to track specific logs)
+
+# Other temporary files that might be created
+*.pyc
+*.pyd
+
+# Sensitive information (adjust based on your project)
+# config.ini
+# secrets.json
