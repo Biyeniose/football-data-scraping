@@ -6,29 +6,17 @@ import pytz
 from dotenv import load_dotenv
 import traceback
 import json
-from supabase import create_client, Client
-
-# Load environment variables from .env file
-load_dotenv()
-
-# Initialize Supabase client
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 logging.basicConfig(level=logging.INFO, filename="logs/py_log.log", filemode="a", format="%(levelname)s %(asctime)s %(message)s")
-
 logger = logging.getLogger(__name__)
 
 # Get the absolute path to the project root directory
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-
 # Add the project root to sys.path
 sys.path.append(project_root)
-
+from scripts.utils.supabase_cli import supabase
 from scripts.functions.common import get_soup  
 from scripts.functions.update_curr_season import update_curr_stats
-
 
 def scrape(team):
     try:
