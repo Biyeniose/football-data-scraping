@@ -8,6 +8,8 @@ sys.path.append(project_root)
 from scripts.utils.supabase_cli import RAPID_API_KEY
 from scripts.utils.supabase_cli import supabase
 
+GLOBAL_YEAR = 2024
+
 logging.basicConfig(level=logging.INFO, filename="logs/py_log.log", filemode="a", format="%(levelname)s %(asctime)s %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -128,25 +130,80 @@ def get_league_rankings(comp_id: str, year: int, id: int):
                 logger.info(f'INSERT ATTEMPT: {club}')
                 logger.info(resp)
         except Exception as e:
-            cprint(f"Error inserting {club}", "red")
+            cprint(f"Error inserting {club}", "light_red")
             logger.error(f"Error insert attempt {club}")
             logger.error(e)
             print(e)
+
+
+            cprint("Update_instead", "blue")
+            del data_object["rank_id"]
+            #cprint(data_object, "blue")
+
+            if year == GLOBAL_YEAR:
+                try:
+                    resp = supabase.table("league_ranks").upsert(data_object).execute()
+                    if resp.data:
+                        #cprint(f"Error inserting {club}", "red")
+                        cprint(resp, "light_magenta")
+                        logger.info(f'UPDATE ATTEMPT: {club}')
+                        logger.info(resp)
+                except Exception as e:
+                    cprint(f"Error UPDATING {club}", "light_red")
+                    logger.error(f"Error UPDATING attempt {club}")
+                    logger.error(e)
+                    print(e)
+
+
         
         
     #t3 = data["data"]["details"]["player"]["name"]
     cprint(league_name, "cyan")
     #cprint(table, "light_green")
 
+max = 1995
 def get_team_info(id: int):
     url = "https://transfermarkt-db.p.rapidapi.com/v1/clubs/profile"
 
-    querystring = {"locale":"US","club_id":"12321"} 
+    querystring = {"locale":"US","club_id": id} 
 
     response = requests.get(url, headers=headers, params=querystring)
     data = response.json()
+    name = data["data"]["mainFacts"]["fullName"]
+    transfm_id = data["data"]["mainFacts"]["id"]
+    transfm_bio_url = data["data"]["share"]["url"]
+    city = data["data"]["mainFacts"]["city"]
+    stadium = data["data"]["stadium"]["name"]
+    trophies = data["data"]["successes"]
+    #name = data["data"]["mainFacts"]["fullName"]
 
-    cprint(data, "green")
+    cprint(name, "green")
+    #cprint(f'{city} - {stadium}', "green")
+    #cprint(len(trophies), "blue")
+    
+    for i in range(len(trophies)-1, -1, -1): 
+        comp = trophies[i]["additionalData"]["competitionId"]
 
+        resp = supabase.table("leagues").select("league_id").eq("transfm_name", comp).execute()
+        if resp.data:
+            x=1
+            cprint(comp, "blue")
+        else:
+            del trophies[i]
+            #continue
+
+    response = supabase.table("teams").select("team_id").eq("transfm_id", transfm_id).execute()
+    team_id = response.data[0]['team_id']
+        
+    data_object = {
+            "team_id": team_id,
+            "transfm_id": transfm_id,
+            "transfm_bio_url": transfm_bio_url,
+            "city": city,
+            "stadium": stadium,
+            "trophies": trophies,
+    }
+    
+    return data_object
 
 
